@@ -1,19 +1,6 @@
 # Use an official PHP runtime as a parent image
-FROM php:7.4-apache
-
-# Set the working directory in the container
+FROM php:8.0-apache
 WORKDIR /var/www/html
-
-# Copy your PHP application code into the container
-COPY . ./
-
-# Install PHP extensions and other dependencies
-RUN apt-get update && \
-    apt-get install -y libpng-dev && \
-    docker-php-ext-install pdo pdo_mysql gd
-
-# Expose the port Apache listens on
-EXPOSE 80
-
-# Start Apache when the container runs
-CMD ["apache2-foreground"]
+COPY copy . /var/www/html/
+RUN apt-get update -y && apt-get install -y libmariadb-dev
+RUN docker-php-ext-install mysqli
