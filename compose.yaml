@@ -12,9 +12,6 @@ services:
         - ./php:/var/www/html 
       restart: always
 
-
-
-
   mysql-db:
     build:
       context: ./db
@@ -25,7 +22,6 @@ services:
     environment:
       MYSQL_DATABASE: hive
       MYSQL_ROOT_PASSWORD: root
-      
     restart: always
     command: 
         - --default_authentication_plugin=mysql_native_password
@@ -33,7 +29,6 @@ services:
         - --collation-server=utf8mb4_unicode_ci
     
 
-  
   phpmyadmin:
     image: phpmyadmin:latest
     restart: always
