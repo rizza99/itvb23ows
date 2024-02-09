@@ -60,6 +60,7 @@ else {
         $stmt->bind_param('issis', $_SESSION['game_id'], $from, $to, $_SESSION['last_move'], get_state());
         $stmt->execute();
         $_SESSION['last_move'] = $db->insert_id;
+        unset($board[$from]);
     }
     $_SESSION['board'] = $board;
 }
