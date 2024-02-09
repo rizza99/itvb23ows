@@ -40,7 +40,7 @@ function slide($board, $from, $to) {
         $q = $b[1] + $pq[1];
         if (isNeighbour($from, $p.",".$q)) $common[] = $p.",".$q;
     }
-    if (!$board[$common[0]] && !$board[$common[1]] && !$board[$from] && !$board[$to]) return false;
+    if (!isset($board[$common[0]]) && !isset($board[$common[1]]) && !isset($board[$from]) && !isset($board[$to])) return false;
     return min(len($board[$common[0]]), len($board[$common[1]])) <= max(len($board[$from]), len($board[$to]));
 }
 

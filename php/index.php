@@ -163,11 +163,10 @@
             <select name="to">
                 <?php
                     foreach ($to as $pos) {
-                        if(!isset($board[$pos])){
                             if(hasNeighBour($pos,$board)){
                                 echo "<option value=\"$pos\">$pos</option>";
-                            }
-                        };
+
+                        }
                     }
                 ?>
             </select>
