@@ -37,6 +37,51 @@ else {
                 }
             }
         }
+
+        switch($tile[1]){
+            case 'G':
+                
+                $explodedFrom = explode(',', $from);
+                $explodedTo = explode(',', $to);
+        
+                $distance = [$explodedTo[0] - $explodedFrom[0], $explodedTo[1] - $explodedFrom[1]];
+        
+                if (!(($distance[0] == 0 && $distance[1] != 0) || ($distance[1] == 0 && $distance[0] != 0) || ($distance[0] == $distance[1]))) {
+                    $_SESSION['error'] = "The grasshopper cannot move like that";
+                }
+        
+                if (isNeighbour($from, $to)){
+                    $_SESSION['error'] = "The grasshopper has to jump over at least 1 other tile";
+                }
+        
+                $p = $explodedFrom[0] + $distance[0];
+                $q = $explodedFrom[1] + $distance[1];
+        
+                while ($p != $explodedTo[0] || $q != $explodedTo[1]) {
+                    $pos = $p . "," . $q;
+        
+                    if (isset($board[$pos])) {
+                        $_SESSION['error'] = "The grasshopper cannot move like that";
+                        
+                    }
+        
+                    $p += $distance[0];
+                    $q += $distance[1];
+                }
+                
+                break;
+
+            case 'A':
+                break;
+
+            case 'S':
+                break;
+
+            default:
+                break;
+
+        }
+
         if ($all) {
             $_SESSION['error'] = "Move would split hive";
         } else {
