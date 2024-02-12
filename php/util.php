@@ -17,6 +17,15 @@ function hasNeighBour($a, $board) {
     }
 }
 
+function has5NeighBours($a, $board) {
+    $neighbors = 0;
+    foreach (array_keys($board) as $b) {
+        if (isNeighbour($a, $b)) $neighbors++;
+    }
+    if($neighbors >= 5) return true;
+    return false;
+}
+
 function neighboursAreSameColor($player, $a, $board) {
     foreach ($board as $b => $st) {
         if (!$st) continue;

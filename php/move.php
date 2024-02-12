@@ -72,6 +72,9 @@ else {
                 break;
 
             case 'A':
+                if (has5NeighBours($to,$board)){
+                    $_SESSION['error'] = "The ant cannot move there";
+                }
                 break;
 
             case 'S':
