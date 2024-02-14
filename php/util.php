@@ -25,6 +25,15 @@ function has5NeighBours($a, $board) {
     if($neighbors >= 5) return true;
     return false;
 }
+function getNeighbours($location){
+    $neighbours = [];
+    $locationParts = explode(',', $location);
+    foreach ($GLOBALS['OFFSETS'] as $offset) {
+        $neighbours[] = ($locationParts[0] + $offset[0]) . ',' . ($locationParts[1] + $offset[1]);
+    }
+    return $neighbours;
+}
+
 
 function neighboursAreSameColor($player, $a, $board) {
     foreach ($board as $b => $st) {

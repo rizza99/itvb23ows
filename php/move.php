@@ -62,7 +62,6 @@ else {
         
                     if (isset($board[$pos])) {
                         $_SESSION['error'] = "The grasshopper cannot move like that";
-                        
                     }
         
                     $p += $distance[0];
@@ -78,7 +77,42 @@ else {
                 break;
 
             case 'S':
+                $fromCoords = array_map('intval', explode(',', $from));
+                $visited = [$from => true];
+                $validMoves = [$fromCoords];
+            
+                for ($i = 0; $i < 3; $i++) {
+                    $newValidMoves = [];
+            
+                    foreach ($validMoves as $coords) {
+                        $neighbours = getNeighbours(implode(',', $coords));
+            
+                        foreach ($neighbours as $neighbour) {
+                            if (!isset($board[$neighbour]) && !isset($visited[$neighbour])) {
+                                $neighbourCoords = array_map('intval', explode(',', $neighbour));
+                                $newValidMoves[] = $neighbourCoords;
+                                $visited[$neighbour] = true;
+                            }
+                        }
+                    }
+            
+                    $validMoves = $newValidMoves;
+            
+                    if (empty($validMoves)) {
+                        $_SESSION['error'] = "no valid moves for this spider";
+                    }
+                }
+                $validmove = 0;
+                foreach ($validMoves as $coords) {
+                    if (implode(',', $coords) === $to) {
+                        $validmove = 1;
+                    }
+                }
+                if ($validmove != 1){
+                    $_SESSION['error'] = "this spider cannot move there";
+                }
                 break;
+                
 
             default:
                 break;
