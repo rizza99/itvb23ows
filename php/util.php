@@ -62,4 +62,91 @@ function slide($board, $from, $to) {
     return min(len($board[$common[0]]), len($board[$common[1]])) <= max(len($board[$from]), len($board[$to]));
 }
 
+function canpass($board,$player){
+
+}
+
+function validmove($tile){
+switch($tile[1]){
+    case 'G':
+        
+        $explodedFrom = explode(',', $from);
+        $explodedTo = explode(',', $to);
+
+        $distance = [$explodedTo[0] - $explodedFrom[0], $explodedTo[1] - $explodedFrom[1]];
+
+        if (!(($distance[0] == 0 && $distance[1] != 0) || ($distance[1] == 0 && $distance[0] != 0) || ($distance[0] == $distance[1]))) {
+            return false;
+        }
+
+        if (isNeighbour($from, $to)){
+            return false;
+        }
+
+        $p = $explodedFrom[0] + $distance[0];
+        $q = $explodedFrom[1] + $distance[1];
+
+        while ($p != $explodedTo[0] || $q != $explodedTo[1]) {
+            $pos = $p . "," . $q;
+
+            if (isset($board[$pos])) {
+                return false;
+            }
+
+            $p += $distance[0];
+            $q += $distance[1];
+        }
+        
+        break;
+
+    case 'A':
+        if (has5NeighBours($to,$board)){
+            return false;
+        }
+        break;
+
+    case 'S':
+        $fromCoords = array_map('intval', explode(',', $from));
+        $visited = [$from => true];
+        $validMoves = [$fromCoords];
+    
+        for ($i = 0; $i < 3; $i++) {
+            $newValidMoves = [];
+    
+            foreach ($validMoves as $coords) {
+                $neighbours = getNeighbours(implode(',', $coords));
+    
+                foreach ($neighbours as $neighbour) {
+                    if (!isset($board[$neighbour]) && !isset($visited[$neighbour])) {
+                        $neighbourCoords = array_map('intval', explode(',', $neighbour));
+                        $newValidMoves[] = $neighbourCoords;
+                        $visited[$neighbour] = true;
+                    }
+                }
+            }
+    
+            $validMoves = $newValidMoves;
+    
+            if (empty($validMoves)) {
+                return false;
+            }
+        }
+        $validmove = 0;
+        foreach ($validMoves as $coords) {
+            if (implode(',', $coords) === $to) {
+                $validmove = 1;
+            }
+        }
+        if ($validmove != 1){
+            return false;
+        }
+        break;
+        
+
+    default:
+        break;
+
+}
+return true;
+}
 ?>

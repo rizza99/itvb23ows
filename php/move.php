@@ -37,87 +37,10 @@ else {
                 }
             }
         }
-
-        switch($tile[1]){
-            case 'G':
-                
-                $explodedFrom = explode(',', $from);
-                $explodedTo = explode(',', $to);
-        
-                $distance = [$explodedTo[0] - $explodedFrom[0], $explodedTo[1] - $explodedFrom[1]];
-        
-                if (!(($distance[0] == 0 && $distance[1] != 0) || ($distance[1] == 0 && $distance[0] != 0) || ($distance[0] == $distance[1]))) {
-                    $_SESSION['error'] = "The grasshopper cannot move like that";
-                }
-        
-                if (isNeighbour($from, $to)){
-                    $_SESSION['error'] = "The grasshopper has to jump over at least 1 other tile";
-                }
-        
-                $p = $explodedFrom[0] + $distance[0];
-                $q = $explodedFrom[1] + $distance[1];
-        
-                while ($p != $explodedTo[0] || $q != $explodedTo[1]) {
-                    $pos = $p . "," . $q;
-        
-                    if (isset($board[$pos])) {
-                        $_SESSION['error'] = "The grasshopper cannot move like that";
-                    }
-        
-                    $p += $distance[0];
-                    $q += $distance[1];
-                }
-                
-                break;
-
-            case 'A':
-                if (has5NeighBours($to,$board)){
-                    $_SESSION['error'] = "The ant cannot move there";
-                }
-                break;
-
-            case 'S':
-                $fromCoords = array_map('intval', explode(',', $from));
-                $visited = [$from => true];
-                $validMoves = [$fromCoords];
-            
-                for ($i = 0; $i < 3; $i++) {
-                    $newValidMoves = [];
-            
-                    foreach ($validMoves as $coords) {
-                        $neighbours = getNeighbours(implode(',', $coords));
-            
-                        foreach ($neighbours as $neighbour) {
-                            if (!isset($board[$neighbour]) && !isset($visited[$neighbour])) {
-                                $neighbourCoords = array_map('intval', explode(',', $neighbour));
-                                $newValidMoves[] = $neighbourCoords;
-                                $visited[$neighbour] = true;
-                            }
-                        }
-                    }
-            
-                    $validMoves = $newValidMoves;
-            
-                    if (empty($validMoves)) {
-                        $_SESSION['error'] = "no valid moves for this spider";
-                    }
-                }
-                $validmove = 0;
-                foreach ($validMoves as $coords) {
-                    if (implode(',', $coords) === $to) {
-                        $validmove = 1;
-                    }
-                }
-                if ($validmove != 1){
-                    $_SESSION['error'] = "this spider cannot move there";
-                }
-                break;
-                
-
-            default:
-                break;
-
+        if (!validmove($tile)){
+            $_SESSION['error'] = "this move is not allowed";
         }
+
 
         if ($all) {
             $_SESSION['error'] = "Move would split hive";
@@ -142,7 +65,9 @@ else {
         $stmt->bind_param('issis', $_SESSION['game_id'], $from, $to, $_SESSION['last_move'], get_state());
         $stmt->execute();
         $_SESSION['last_move'] = $db->insert_id;
-        unset($board[$from]);
+        if (empty($board[$from])) {
+            unset($board[$from]);
+        }
     }
     $_SESSION['board'] = $board;
 }
