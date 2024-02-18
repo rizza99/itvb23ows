@@ -37,7 +37,7 @@ else {
                 }
             }
         }
-        if (!validmove($tile)){
+        if (!validmove($tile, $player, $to, $from)){
             $_SESSION['error'] = "this move is not allowed";
         }
 

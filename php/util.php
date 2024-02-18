@@ -63,90 +63,128 @@ function slide($board, $from, $to) {
 }
 
 function canpass($board,$player){
+    if ((array_sum($_SESSION['hand'][$player]) == 12))
+        return false;
+    if (canplay($player,$board))
+        return false;
 
+    return true;
 }
 
-function validmove($tile){
-switch($tile[1]){
-    case 'G':
-        
-        $explodedFrom = explode(',', $from);
-        $explodedTo = explode(',', $to);
-
-        $distance = [$explodedTo[0] - $explodedFrom[0], $explodedTo[1] - $explodedFrom[1]];
-
-        if (!(($distance[0] == 0 && $distance[1] != 0) || ($distance[1] == 0 && $distance[0] != 0) || ($distance[0] == $distance[1]))) {
-            return false;
+function canplay($player, $board){
+    $to = [];
+    $hand = $_SESSION['hand'][$player];
+    if (array_sum($hand) == 0)
+        return false;
+    
+    foreach ($GLOBALS['OFFSETS'] as $pq) {
+        foreach (array_keys($board) as $pos) {
+            $pq2 = explode(',', $pos);
+            $to[] = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
         }
+    }
+    $to = array_unique($to);
+    if (!count($to)) $to[] = '0,0';
 
-        if (isNeighbour($from, $to)){
-            return false;
+    $possibleplays = 0;
+
+    foreach ($to as $pos) {
+        if(!isset($board[$pos])){
+            if (count($board) && hasNeighBour($pos, $board))
+                if (neighboursAreSameColor($player, $pos, $board))
+                    $possibleplays++;
         }
+    }
+     if ($possiblemoves != 0) return false;
+    return true;
+}
 
-        $p = $explodedFrom[0] + $distance[0];
-        $q = $explodedFrom[1] + $distance[1];
+function validmove($tile, $player, $to, $from){
 
-        while ($p != $explodedTo[0] || $q != $explodedTo[1]) {
-            $pos = $p . "," . $q;
+    $hand = $_SESSION['hand'][$player];
+    if ($hand['Q']){
+        return false;
+    }
+    switch($tile[1]){
+        case 'G':
+            
+            $explodedFrom = explode(',', $from);
+            $explodedTo = explode(',', $to);
 
-            if (isset($board[$pos])) {
+            $distance = [$explodedTo[0] - $explodedFrom[0], $explodedTo[1] - $explodedFrom[1]];
+
+            if (!(($distance[0] == 0 && $distance[1] != 0) || ($distance[1] == 0 && $distance[0] != 0) || ($distance[0] == $distance[1]))) {
                 return false;
             }
 
-            $p += $distance[0];
-            $q += $distance[1];
-        }
+            if (isNeighbour($from, $to)){
+                return false;
+            }
+
+            $p = $explodedFrom[0] + $distance[0];
+            $q = $explodedFrom[1] + $distance[1];
+
+            while ($p != $explodedTo[0] || $q != $explodedTo[1]) {
+                $pos = $p . "," . $q;
+
+                if (isset($board[$pos])) {
+                    return false;
+                }
+
+                $p += $distance[0];
+                $q += $distance[1];
+            }
+            
+            break;
+
+        case 'A':
+            if (has5NeighBours($to,$board)){
+                return false;
+            }
+            break;
+
+        case 'S':
+            $fromCoords = array_map('intval', explode(',', $from));
+            $visited = [$from => true];
+            $validMoves = [$fromCoords];
         
-        break;
-
-    case 'A':
-        if (has5NeighBours($to,$board)){
-            return false;
-        }
-        break;
-
-    case 'S':
-        $fromCoords = array_map('intval', explode(',', $from));
-        $visited = [$from => true];
-        $validMoves = [$fromCoords];
-    
-        for ($i = 0; $i < 3; $i++) {
-            $newValidMoves = [];
-    
-            foreach ($validMoves as $coords) {
-                $neighbours = getNeighbours(implode(',', $coords));
-    
-                foreach ($neighbours as $neighbour) {
-                    if (!isset($board[$neighbour]) && !isset($visited[$neighbour])) {
-                        $neighbourCoords = array_map('intval', explode(',', $neighbour));
-                        $newValidMoves[] = $neighbourCoords;
-                        $visited[$neighbour] = true;
+            for ($i = 0; $i < 3; $i++) {
+                $newValidMoves = [];
+        
+                foreach ($validMoves as $coords) {
+                    $neighbours = getNeighbours(implode(',', $coords));
+        
+                    foreach ($neighbours as $neighbour) {
+                        if (!isset($board[$neighbour]) && !isset($visited[$neighbour])) {
+                            $neighbourCoords = array_map('intval', explode(',', $neighbour));
+                            $newValidMoves[] = $neighbourCoords;
+                            $visited[$neighbour] = true;
+                        }
                     }
                 }
+        
+                $validMoves = $newValidMoves;
+        
+                if (empty($validMoves)) {
+                    return false;
+                }
             }
-    
-            $validMoves = $newValidMoves;
-    
-            if (empty($validMoves)) {
+            $validmove = 0;
+            foreach ($validMoves as $coords) {
+                if (implode(',', $coords) === $to) {
+                    $validmove = 1;
+                }
+            }
+            if ($validmove != 1){
                 return false;
             }
-        }
-        $validmove = 0;
-        foreach ($validMoves as $coords) {
-            if (implode(',', $coords) === $to) {
-                $validmove = 1;
-            }
-        }
-        if ($validmove != 1){
-            return false;
-        }
-        break;
-        
+            break;
+            
 
-    default:
-        break;
+        default:
+            break;
 
-}
+    }
 return true;
 }
 ?>
