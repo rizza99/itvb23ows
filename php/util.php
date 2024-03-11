@@ -25,6 +25,16 @@ function has5NeighBours($a, $board) {
     if($neighbors >= 5) return true;
     return false;
 }
+
+function isSurounded($a, $board) {
+    $neighbors = 0;
+    foreach (array_keys($board) as $b) {
+        if (isNeighbour($a, $b)) $neighbors++;
+    }
+    if($neighbors == 7) return true;
+    return false;
+}
+
 function getNeighbours($location){
     $neighbours = [];
     $locationParts = explode(',', $location);
@@ -63,12 +73,44 @@ function slide($board, $from, $to) {
 }
 
 function canpass($board,$player){
-    if ((array_sum($_SESSION['hand'][$player]) == 12))
+    if ((array_sum($_SESSION['hand'][$player]) == 11)){
         return false;
-    if (canplay($player,$board))
+    }
+    if (canplay($player,$board)){
         return false;
-
+    }
+    if (canmove($board, $player)){
+        return false;
+    }
     return true;
+}
+
+function canmove($board, $player){
+
+    $to = [];
+    foreach ($GLOBALS['OFFSETS'] as $pq) {
+        foreach (array_keys($board) as $pos) {
+            $pq2 = explode(',', $pos);
+            $to[] = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
+        }
+    }
+    $to = array_unique($to);
+
+    if (!count($to)) $to[] = '0,0';
+    foreach (array_keys($board) as $from) {
+        if($board[$pos][count($board[$from])-1][0] == $player){
+            foreach ($to as $pos) {
+                if(hasNeighBour($pos,$board)){
+                    $tile = array_pop($board[$from]);
+                    if(validmove($tile, $player, $to, $from, $board)){
+                        return true;
+                    }
+
+                }
+            }
+        }
+    }
+    return false;
 }
 
 function canplay($player, $board){
@@ -76,7 +118,9 @@ function canplay($player, $board){
     $hand = $_SESSION['hand'][$player];
     if (array_sum($hand) == 0)
         return false;
-    
+    if (array_sum($hand) == 11)
+        return true;
+
     foreach ($GLOBALS['OFFSETS'] as $pq) {
         foreach (array_keys($board) as $pos) {
             $pq2 = explode(',', $pos);
@@ -95,11 +139,11 @@ function canplay($player, $board){
                     $possibleplays++;
         }
     }
-     if ($possiblemoves != 0) return false;
-    return true;
+    if ($possibleplays != 0) return true;
+    return false;
 }
 
-function validmove($tile, $player, $to, $from){
+function validmove($tile, $player, $to, $from, $board){
 
     $hand = $_SESSION['hand'][$player];
     if ($hand['Q']){
@@ -187,4 +231,40 @@ function validmove($tile, $player, $to, $from){
     }
 return true;
 }
+
+function checkWin($board){
+    
+    $boardCopy = $board;
+    foreach ($boardCopy as $position => $pieces) {
+        if (is_array($pieces) && !empty($pieces)) {
+            $lastPiece = end($pieces);
+            if ($lastPiece[1] == 'Q') {
+                $c = $pieces[count($pieces) - 1][0];
+                if ($c == 0){
+                    $queenWhite = $position;
+                }
+                if ($c == 1){
+                    $queenBlack = $position;
+                }
+            }
+        }
+    }
+
+    if(isSurounded($queenWhite, $board) && isSurounded($queenBlack, $board)){
+        $_SESSION['error'] = 'Game ended in a draw';
+        return "draw";
+    }
+
+    if(isSurounded($queenWhite, $board)){
+        $_SESSION['error'] = 'Game ended Black won';
+        return "Black";
+    }
+
+    if(isSurounded($queenBlack, $board)){
+        $_SESSION['error'] = 'Game ended White won';
+        return "White";
+
+    }
+}
+
 ?>

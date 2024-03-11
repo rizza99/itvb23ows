@@ -19,7 +19,7 @@ elseif ($board[$from][count($board[$from])-1][0] != $player)
 elseif ($hand['Q'])
     $_SESSION['error'] = "Queen bee is not played";
 else {
-    $tile = array_pop($board[$from]);
+    $tile = array_pop($board[$from]); 
     if (!hasNeighBour($to, $board))
         $_SESSION['error'] = "Move would split hive";
     else {
@@ -37,7 +37,7 @@ else {
                 }
             }
         }
-        if (!validmove($tile, $player, $to, $from)){
+        if (!validmove($tile, $player, $to, $from, $board)){
             $_SESSION['error'] = "this move is not allowed";
         }
 

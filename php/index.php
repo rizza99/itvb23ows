@@ -178,7 +178,22 @@
         <form method="post" action="restart.php">
             <input type="submit" value="Restart">
         </form>
+        <?php 
+        $winner = checkWin($_SESSION['board']);
+        if ($winner !== null){
+            if ($winner == "draw"){
+                $_SESSION['error'] = 'Game ended in a draw';
+                $_SESSION['winner'] = $winner;
+            }
+            else{
+                $_SESSION['error'] = 'Game ended the winner is:';
+                $_SESSION['winner'] = $winner;
+            }
+        }
+        ?>
         <strong><?php if (isset($_SESSION['error'])) echo($_SESSION['error']); unset($_SESSION['error']); ?></strong>
+        <strong><?php if (isset($_SESSION['winner'])) echo($_SESSION['winner']); unset($_SESSION['winner']);?></strong>
+
         <ol>
             <?php
                 $db = include 'database.php';
@@ -195,4 +210,3 @@
         </form>
     </body>
 </html>
-
