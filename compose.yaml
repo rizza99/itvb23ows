@@ -36,3 +36,11 @@ services:
       - "8082:80"
     environment:
       - PMA_ARBITRARY=1
+
+  ai:
+    build: 
+      context: ./ai
+    ports:
+      - "3000:3000"
+    container_name: ai
+    restart: always
